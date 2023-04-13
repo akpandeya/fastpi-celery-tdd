@@ -9,7 +9,7 @@ ENV PYTHONFAULTHANDLER=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
     POETRY_VERSION=1.4.1 \
-    PYTHONPATH="/app:/app/app"
+    PYTHONPATH="/app:/app/src"
 
 
 RUN pip install poetry && \
@@ -17,10 +17,10 @@ RUN pip install poetry && \
 
 COPY ./pyproject.toml ./poetry.lock* /app/
 
-COPY ./app /app
+COPY ./src ./src
 
 FROM base as dev
-COPY /tests ./tests
+COPY ./tests ./tests
 
 RUN poetry install --no-interaction --no-ansi
 
