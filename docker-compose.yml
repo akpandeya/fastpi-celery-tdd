@@ -15,4 +15,12 @@ services:
       - 80
     ports:
       - 80:80
+
+  product-service:
+    image: wiremock/wiremock:2.32.0
+    command: --verbose
+    volumes:
+      - ./wiremock/product-service/stubs:/home/wiremock
+    ports:
+    - "8081:8080"
     
