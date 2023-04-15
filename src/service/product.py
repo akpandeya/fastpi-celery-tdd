@@ -1,10 +1,10 @@
-from src.service.base import BaseService
+from src.service.base import BaseGetService
 from src.model import Product
 from uuid import UUID
 import requests
 
 
-class ProductService(BaseService):
+class ProductService(BaseGetService):
     def __init__(self, url) -> None:
         self.url = url
 
