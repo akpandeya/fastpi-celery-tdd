@@ -1,25 +1,15 @@
-import json
-import pytest
+from unittest.mock import Mock, patch
+
 from src.main import app
-from sqlmodel import create_engine
-from fastapi.testclient import TestClient
+from src.service import EmailService
+from src.tasks import send_email_task
 
-@pytest.fixture(scope="module")
-def client():
-    SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost/db"
 
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+class MockEmailService(EmailService):
+    ...
 
-    with TestClient(app) as client:
-        yield client
 
-    # clean up
-    with engine.begin() as conn:
-        conn.execute("DELETE FROM orders")
-        conn.execute("DELETE FROM order_items")
-
-def test_create_order(client):
-    # prepare test data
+def test_create_order(test_client):
     order_data = {
         "customer_name": "John Smith",
         "customer_email": "john.smith@example.com",
@@ -27,34 +17,59 @@ def test_create_order(client):
         "payment_info": "4242 4242 4242 4242",
         "items": [
             {
-                "product_id": 1,
+                "product_id": "5c5a5a52-58e3-48a5-85a5-31942c0e1918",
                 "quantity": 2,
-                "discount_code": "SPECIAL10"
+                "discount_code": None,
             },
             {
-                "product_id": 2,
+                "product_id": "b0d6dd8f-15e1-4a13-831c-4a9d1a4c4e4f",
                 "quantity": 1,
-                "discount_code": None
-            }
-        ]
+                "discount_code": "SAUSAGE20",
+            },
+        ],
     }
+    MockEmailService.send_email = Mock(spec=MockEmailService.send_email)
 
-    # send POST request to create order
-    response = client.post("/orders", json=order_data)
+    app.dependency_overrides[EmailService] = MockEmailService
 
-    # check response status code
+    response = test_client.post("v1/order", json=order_data)
     assert response.status_code == 201
 
-    # check response body
     data = response.json()
-    assert data["tracking_number"] is not None
-    assert data["total_cost"] == 19.99 + 9.99 * 2 - 2  # should be 36.97 after discount
-    assert len(data["items"]) == 2
 
-    # check database record
-    with engine.begin() as conn:
-        result = conn.execute("SELECT COUNT(*) FROM orders").first()
-        assert result[0] == 1
+    assert data["id"] is None
+    MockEmailService.send_email.assert_called_once()
+    assert data["total_cost"] == round(34.99 * 2 + 14.99 * 1 * (1 - 0.2), 2)
 
-        result = conn.execute("SELECT COUNT(*) FROM order_items").first()
-        assert result[0] == 2
+
+def test_create_order1(test_client):
+    order_data = {
+        "customer_name": "John Smith",
+        "customer_email": "john.smith@example.com",
+        "shipping_address": "123 Main St, Anytown USA",
+        "payment_info": "4242 4242 4242 4242",
+        "items": [
+            {
+                "product_id": "5c5a5a52-58e3-48a5-85a5-31942c0e1918",
+                "quantity": 2,
+                "discount_code": None,
+            },
+            {
+                "product_id": "b0d6dd8f-15e1-4a13-831c-4a9d1a4c4e4f",
+                "quantity": 1,
+                "discount_code": "SAUSAGE20",
+            },
+        ],
+    }
+
+    with patch(
+        "src.api.v1.order.send_email_task.delay", Mock(spec=send_email_task)
+    ) as mocked_send_email_task:
+        response = test_client.post("v1/order", json=order_data)
+        assert response.status_code == 201
+
+        data = response.json()
+
+        assert data["id"] is not None
+        mocked_send_email_task.assert_called_once()
+        assert data["total_cost"] == round(34.99 * 2 + 14.99 * 1 * (1 - 0.2), 2)

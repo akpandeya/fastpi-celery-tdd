@@ -18,9 +18,14 @@ RUN pip install poetry && \
 COPY ./pyproject.toml ./poetry.lock* /app/
 
 COPY ./src ./src
+COPY worker-start.sh /worker-start.sh
+RUN chmod +x /worker-start.sh
+
 
 FROM base as dev
 COPY ./tests ./tests
+
+
 
 RUN poetry install --no-interaction --no-ansi
 

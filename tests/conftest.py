@@ -1,15 +1,20 @@
 import pytest
-from fastapi.testclient import TestClient
-from src.main import app
-
-
-@pytest.fixture(scope="session")
-def test_client():
-    return TestClient(app)
+from src.config import settings
+from src.service.product import ProductService
 
 
 @pytest.fixture
-def mock_order_data():
+def product_service_url():
+    return settings.PRODUCT_SERVICE_URL
+
+
+@pytest.fixture
+def product_service(product_service_url):
+    return ProductService(product_service_url)
+
+
+@pytest.fixture
+def order_dict():
     return {
         "customer_name": "John Smith",
         "customer_email": "john.smith@example.com",

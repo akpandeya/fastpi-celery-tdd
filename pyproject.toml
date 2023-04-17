@@ -11,6 +11,9 @@ python = "^3.11"
 fastapi = "^0.95.0"
 pytest-testmon = "^2.0.6"
 sqlmodel = "^0.0.8"
+pre-commit = "^3.2.2"
+celery = "^5.2.7"
+redis = "^4.5.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

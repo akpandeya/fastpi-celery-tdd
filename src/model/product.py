@@ -1,16 +1,15 @@
-from uuid import UUID
 from decimal import Decimal
-from dataclasses import dataclass
+from uuid import UUID
+
+from pydantic import BaseModel
 
 
-@dataclass
-class Discount:
+class Discount(BaseModel):
     code: str
     rate: int
 
 
-@dataclass
-class Product:
+class Product(BaseModel):
     id: UUID
     name: str
     currency: str
@@ -19,9 +18,3 @@ class Product:
     description: str
     image: str
     in_stock: int
-
-    @classmethod
-    def from_dict(cls, data):
-        discount_data = data.pop("discounts", [])
-        discount_list = [Discount(**d) for d in discount_data]
-        return cls(discounts=discount_list, **data)
