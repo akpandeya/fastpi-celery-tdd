@@ -1,4 +1,4 @@
 #! /usr/bin/env bash
 set -e
 
-celery -A src.worker.celery worker
+watchfiles --filter python  'celery -A src.worker.celery worker --loglevel=info'

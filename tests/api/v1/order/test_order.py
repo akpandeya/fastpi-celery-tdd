@@ -37,7 +37,7 @@ def test_create_order(test_client):
 
     data = response.json()
 
-    assert data["id"] is None
+    assert data["id"] is not None
     MockEmailService.send_email.assert_called_once()
     assert data["total_cost"] == round(34.99 * 2 + 14.99 * 1 * (1 - 0.2), 2)
 

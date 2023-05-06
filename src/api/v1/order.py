@@ -38,8 +38,8 @@ def create_order(
     )
 
 
-@order_router_v1.post("/1", status_code=201, response_model=OrderResponse)
-def create_order_1(
+@order_router_v1.post("/", status_code=201, response_model=OrderResponse)
+def create_order1(
     *,
     order_data: OrderData,
     email_service: Annotated[EmailService, Depends(EmailService)],
@@ -50,8 +50,8 @@ def create_order_1(
     return order_service.create_order_response(order_data)
 
 
-@order_router_v1.post("/1", status_code=201, response_model=OrderResponse)
-def create_order_2(
+@order_router_v1.post("/", status_code=201, response_model=OrderResponse)
+def create_order2(
     *,
     order_data: OrderData,
     order_service: Annotated[OrderService, Depends(OrderService)],

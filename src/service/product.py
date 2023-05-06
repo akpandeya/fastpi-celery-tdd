@@ -3,10 +3,9 @@ from uuid import UUID
 import requests
 from src.config import settings
 from src.model import Product
-from src.service.base import BaseGetService
 
 
-class ProductService(BaseGetService):
+class ProductService:
     def __init__(self, url=settings.PRODUCT_SERVICE_URL) -> None:
         self.url = url
 

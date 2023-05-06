@@ -1,20 +1,20 @@
 version: "3.9"
 
 services:
-#   backend:
-#     env_file:
-#       - .env
-#     build:
-#       dockerfile: Dockerfile
-#       target: dev
-#     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
-#     volumes:
-#       - .:/app
+  backend:
+    env_file:
+      - .env
+    build:
+      dockerfile: Dockerfile
+      target: dev
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+    volumes:
+      - .:/app
 
-#     expose:
-#       - 80
-#     ports:
-#       - 80:80
+    expose:
+      - 80
+    ports:
+      - 80:80
 
   product-service:
     image: wiremock/wiremock:2.32.0
@@ -24,16 +24,16 @@ services:
     ports:
     - "8081:8080"
 
-  # worker:
-  #   build:
-  #     dockerfile: Dockerfile
-  #   command: /worker-start.sh
-  #   volumes:
-  #     - .:/app
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - redis
+  worker:
+    build:
+      dockerfile: Dockerfile
+    command: /worker-start.sh
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
 
-  # redis:
-  #   image: redis:7
+  redis:
+    image: redis:7
